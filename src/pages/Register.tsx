@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { register } from '../api/server'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Register () {
   // Store the username
@@ -13,6 +13,8 @@ function Register () {
 
   const [message, setMessage] = useState('')
 
+  const navigate = useNavigate();
+
   async function handleRegister(event: React.FormEvent) {
     event.preventDefault();
 
@@ -20,6 +22,7 @@ function Register () {
       await register(username, email, password)
 
       setMessage('Registration successful');
+      navigate('/login');
     } catch (error) {
       console.error('Registration error:', error)
       setMessage('Registration failed. Please try again.');
@@ -27,7 +30,7 @@ function Register () {
   }
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col items-center p-10">
       <h1 className="text-5xl font-bold mb-10">
         Loc'd In 
       </h1>
@@ -67,7 +70,7 @@ function Register () {
               </button>
           </form>
 
-          <p className="mt=4">
+          <p className="mt-4">
             Already have an account?{' '}
             <Link to="/login" className="font-bold underline">
             Login

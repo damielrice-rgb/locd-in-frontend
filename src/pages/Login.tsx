@@ -1,11 +1,12 @@
 import {useState} from 'react';
 import { login } from '../api/server';
 import {useAuth} from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Login() {
    // Get login function from Auth Context
   const { loginUser } = useAuth();
+  const navigate = useNavigate();
 
   // Store user email
   const [email, setEmail] = useState('');
@@ -24,6 +25,7 @@ function Login() {
       loginUser(data.token);
 
       setMessage('Login successful!')
+      navigate('/dashboard');
 
     } catch (error) {
       setMessage('Login failed. Check your email and password.')

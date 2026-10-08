@@ -10,7 +10,7 @@ function Navbar () {
       Loc'd In 
     </Link>
 
-    <div>
+    <div className="flex gap-4">
       <Link to="/">Home</Link>
 
       {token && (
