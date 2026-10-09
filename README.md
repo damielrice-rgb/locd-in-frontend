@@ -2,7 +2,7 @@
 
 The React frontend for **Loc'd In**, a booking app for a loc and natural hair salon. Clients can browse services, create an account, and book, edit, and cancel their own appointments.
 
-- **Live site:** [paste your Render frontend URL here]
+- **Live site:** https://locd-in-frontend.onrender.com/
 - **Live API:** https://locd-in-backend.onrender.com
 - **Backend repo:** https://github.com/damielrice-rgb/locd-in-backend
 
