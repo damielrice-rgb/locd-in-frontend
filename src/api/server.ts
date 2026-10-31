@@ -160,3 +160,65 @@ export async function updateAppointment(
 // Return the update appointment
   return response.json()
 }
+
+// ===================================================
+// NEW: Guest booking — no login, so NO token
+// ===================================================
+export async function createBooking(
+  service: string,
+  date: string,
+  notes: string,
+  clientName: string,
+  clientPhone: string,
+  smsConsent: boolean,
+) {
+  const response = await fetch(`${API_URL}/bookings`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      service,
+      date,
+      notes,
+      clientName,
+      clientPhone,
+      smsConsent,
+    }),
+  })
+
+  const data = await response.json()
+
+  // Show the backend's message (like "that time was just booked")
+  // instead of a generic error, so the client knows what to fix
+  if(!response.ok) {
+    throw new Error(data.message || 'Failed to book appointment')
+  }
+
+  return data
+}
+
+// ===================================================
+// NEW: Text Club sign up — also no login
+// ===================================================
+export async function subscribe(phone: string, consent: boolean, source: string) {
+  const response = await fetch(`${API_URL}/subscribers`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      phone,
+      consent,
+      source,
+    }),
+  })
+
+  const data = await response.json()
+
+  if(!response.ok) {
+    throw new Error(data.message || 'Something went wrong')
+  }
+
+  return data
+}

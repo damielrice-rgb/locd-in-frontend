@@ -1,1 +1,149 @@
+/* =========================================================
+   index.css — global styles for Loc'd In
+   Tailwind v4 reads this file. Everything below the import
+   adds OUR brand colors, fonts, and animations on top of it.
+   ========================================================= */
 @import 'tailwindcss';
+
+/* STEP 1: Brand tokens.
+   Anything inside @theme becomes a Tailwind class automatically.
+   Example: --color-ruby  ->  bg-ruby, text-ruby, border-ruby
+            --font-display ->  font-display
+   WHY: we type the hex code once here instead of in 50 places. */
+@theme {
+  --color-ruby: #a3122a;        /* Ruby Woo red — main brand color */
+  --color-ruby-bright: #c8183a; /* lighter red for gradients */
+  --color-ruby-deep: #5c0614;   /* darkest red for gradients/shadows */
+  --color-ink: #0c0809;         /* our "black" (a hint of red in it) */
+  --color-blush: #ffe7eb;       /* light pink text on red backgrounds */
+  --color-line: #ede4e5;        /* soft border on white sections */
+
+  --font-display: 'Unbounded', sans-serif;        /* big bold headlines */
+  --font-body: 'Manrope', system-ui, sans-serif;  /* normal text */
+  --font-script: 'Allura', cursive;               /* "by Morneice" signature */
+}
+
+/* STEP 2: Page defaults */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background: #ffffff;
+}
+
+/* STEP 3: Custom utilities.
+   @utility makes a new Tailwind class we can use like any other
+   (className="glass"). WHY: glassmorphism takes 3 CSS lines that
+   Tailwind would make long, so we name it once. */
+@utility glass {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px); /* Safari/iPhone needs this prefix */
+}
+
+/* The red gradient behind the hero sections */
+@utility bg-ruby-glow {
+  background: radial-gradient(120% 90% at 78% 30%, #c8183a 0%, #a3122a 38%, #5c0614 100%);
+}
+
+/* =========================================================
+   STEP 4: Animations (plain CSS — no extra packages needed)
+   ========================================================= */
+
+/* Marquee: the scrolling ✷ strip.
+   We render the list TWICE and slide it -50%, so when the first copy
+   leaves the screen the second copy is in the exact same spot = endless loop. */
+.marquee-track {
+  display: flex;
+  gap: 56px;
+  width: max-content;
+  animation: marq 32s linear infinite;
+}
+@keyframes marq {
+  to { transform: translateX(-50%); }
+}
+
+/* Floaty: glass shapes that bob up and down */
+.floaty { animation: floaty 9s ease-in-out infinite; }
+.floaty-slow { animation: floaty 13s ease-in-out -4s infinite; }
+@keyframes floaty {
+  50% { transform: translate3d(0, -26px, 0) rotate(5deg); }
+}
+
+/* Spin: the round "BOOK NOW" badge */
+.spin-slow { animation: spin 18s linear infinite; }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Rotating headline words ("Retwisted." -> "Started right." -> ...)
+   The outer box is ONE line tall with overflow hidden, like a window.
+   The inner column of words slides up one line at a time.
+   There are 6 words (5 + the first one repeated) so the jump
+   from the last word back to the first is invisible. */
+.rot {
+  display: inline-block;
+  height: 1.08em;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.rot-inner {
+  display: flex;
+  flex-direction: column;
+  animation: rot 12.5s cubic-bezier(0.75, 0, 0.25, 1) infinite;
+}
+.rot-inner span {
+  display: block;
+  height: 1.08em;
+  line-height: 1.08em;
+  white-space: nowrap;
+}
+@keyframes rot {
+  0%, 16%  { transform: translateY(0); }
+  20%, 36% { transform: translateY(-1.08em); }
+  40%, 56% { transform: translateY(-2.16em); }
+  60%, 76% { transform: translateY(-3.24em); }
+  80%, 96% { transform: translateY(-4.32em); }
+  100%     { transform: translateY(-5.4em); }
+}
+
+/* Lift: cards rise a little when you hover */
+.lift { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s; }
+.lift:hover { transform: translateY(-8px); box-shadow: 0 30px 60px rgba(92, 6, 20, 0.28); }
+
+/* Zoom: image inside a card grows slightly on hover */
+.zoom img { transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.zoom:hover img { transform: scale(1.06); }
+
+/* Pulse: the little white "live" dot */
+.pulse-dot { animation: pulse 2.4s ease-out infinite; }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55); }
+  100% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); }
+}
+
+/* Shine: shimmer moving across the "$10 off" headline */
+.shine {
+  background: linear-gradient(110deg, #fff 35%, #ffd3da 50%, #fff 65%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 4s linear infinite;
+}
+@keyframes shine {
+  to { background-position: -150% 0; }
+}
+
+/* FAQ accordion: hide the default triangle, rotate our + into an x */
+details summary { list-style: none; cursor: pointer; }
+details summary::-webkit-details-marker { display: none; }
+.plus { transition: transform 0.3s; }
+details[open] .plus { transform: rotate(45deg); }
+
+/* ACCESSIBILITY: some people turn on "reduce motion" on their phone
+   because animation makes them dizzy. We respect that setting. */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
