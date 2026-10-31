@@ -54,6 +54,9 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // tries goes up by 1 each time "Try again" is tapped, which reloads the services
+  const [tries, setTries] = useState(0);
+
   const navigate = useNavigate();
 
   // hash = the "#faq" part of the URL
@@ -66,12 +69,19 @@ function Home() {
       })
       .catch((error) => {
         console.error(error);
-        setError('Services are taking a second to load. Refresh the page or tap Book now.');
+        setError("We couldn't load the services.");
       })
       .finally(() => {
         setLoading(false); // runs whether it worked or not
       });
-  }, []);
+  }, [tries]); // [tries] = run this again every time tries changes
+
+  // Runs when someone taps "Try again"
+  const tryAgain = () => {
+    setError('');
+    setLoading(true);
+    setTries(tries + 1);
+  };
 
   // Scroll to the section named in the URL, like /#faq.
   // WHY: coming from another page, the browser looks for #faq before React has
@@ -186,9 +196,22 @@ function Home() {
           </p>
 
           {/* show ONE of these: loading, error, or the cards */}
-          {loading && <p className="mt-12 font-bold text-ruby">Loading services...</p>}
+          {loading && (
+            <p className="mt-12 font-bold text-ruby">Loading services… this can take up to 30 seconds the first time.</p>
+          )}
 
-          {error && <p className="mt-12 font-bold text-ruby">{error}</p>}
+          {error && (
+            <div className="mt-12">
+              <p className="font-bold text-ruby">{error}</p>
+              <button
+                type="button"
+                onClick={tryAgain}
+                className="mt-4 min-h-12 rounded-full bg-ruby px-6 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-ruby-deep"
+              >
+                Try again
+              </button>
+            </div>
+          )}
 
           {/* 1 column on phones, 2 on tablets, 3 on desktop */}
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

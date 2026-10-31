@@ -54,6 +54,14 @@ function Book() {
 
   const [services, setServices] = useState<Service[]>([]);
 
+  // loading + error so the dropdown doesn't just sit empty while the API wakes up
+  // (Render's free plan "sleeps", so the first load can take ~30 seconds)
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [servicesError, setServicesError] = useState('');
+
+  // tries goes up by 1 each time "Try again" is tapped, which reloads the services
+  const [tries, setTries] = useState(0);
+
   // form fields — start the service as whatever was in the URL
   const [serviceId, setServiceId] = useState(searchParams.get('service') || '');
   const [date, setDate] = useState('');
@@ -85,15 +93,27 @@ function Book() {
       })
       .catch((error) => {
         console.error(error);
+        setServicesError("We couldn't load the services.");
+      })
+      .finally(() => {
+        setLoadingServices(false); // runs whether it worked or not
       });
-  }, []);
+  }, [tries]); // [tries] = run this again every time tries changes
+
+  // Runs when someone taps "Try again"
+  const tryAgain = () => {
+    setServicesError('');
+    setLoadingServices(true);
+    setTries(tries + 1);
+  };
 
   // Phone check: 10 digits, or 11 starting with 1
   const digits = clientPhone.replace(/\D/g, '');
   const validPhone = digits.length === 10 || (digits.length === 11 && digits.startsWith('1'));
 
-  // Button only turns on when everything is filled in
-  const canSubmit = serviceId && date && time && clientName.trim() && validPhone && smsConsent && !sending;
+  // Button only turns on when everything is filled in.
+  // services.length: if the menu never loaded, the picked service can't be checked yet.
+  const canSubmit = services.length > 0 && serviceId && date && time && clientName.trim() && validPhone && smsConsent && !sending;
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault(); // stop the page from reloading
@@ -180,6 +200,24 @@ function Book() {
               ))}
             </select>
           </label>
+
+          {loadingServices && (
+            <p className="text-sm font-bold text-blush">Loading services… this can take up to 30 seconds the first time.</p>
+          )}
+
+          {servicesError && (
+            <div className="rounded-2xl bg-ink/40 p-4">
+              <p className="font-bold">{servicesError}</p>
+              {/* type="button" so tapping it doesn't submit the form */}
+              <button
+                type="button"
+                onClick={tryAgain}
+                className="mt-3 min-h-12 rounded-full bg-white px-6 font-extrabold text-ruby transition hover:-translate-y-0.5"
+              >
+                Try again
+              </button>
+            </div>
+          )}
 
           {/* 2. DATE — min stops past dates */}
           <label className="flex flex-col gap-2 font-bold">
