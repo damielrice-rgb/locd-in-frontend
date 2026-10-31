@@ -22,7 +22,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 py-14 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p className="font-display text-xl font-black">LOC'D IN</p>
-            <p className="font-script text-3xl">by Morneice</p>
+            <p className="font-script text-3xl">with Mo</p>
             <p className="mt-3 text-white/60">Loc stylist in St. Louis, MO.</p>
           </div>
           <div>
@@ -47,7 +47,7 @@ export default function Footer() {
         </div>
 
         {/* new Date().getFullYear() keeps the year current automatically */}
-        <p className="text-sm text-white/40">© {new Date().getFullYear()} Loc'd In by Morneice · St. Louis, MO</p>
+        <p className="text-sm text-white/40">© {new Date().getFullYear()} Loc'd In with Mo · St. Louis, MO</p>
       </div>
     </footer>
   );
