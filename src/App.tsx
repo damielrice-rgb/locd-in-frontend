@@ -14,6 +14,10 @@ function App() {
     <BrowserRouter>
 
     <Navbar />
+
+    {/* pt-28 = room for the floating navbar on every page.
+        WHY: the navbar is fixed, so it would sit on top of the page without this space. */}
+    <main className="pt-28">
     <Routes>
       <Route path="/" element={<Home />} />
 
@@ -32,6 +36,7 @@ function App() {
         </ProtectedRoute>} />
 
     </Routes>
+    </main>
 
     </BrowserRouter>
   )
