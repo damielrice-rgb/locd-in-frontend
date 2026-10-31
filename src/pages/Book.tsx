@@ -75,6 +75,13 @@ function Book() {
     getServices()
       .then((data) => {
         setServices(data);
+
+        // Clear the service from the URL if it isn't on the menu.
+        // WHY: a broken or old link would look like nothing is picked,
+        // but the form would still try to book it.
+        setServiceId((current) =>
+          data.some((service: Service) => service._id === current) ? current : ''
+        );
       })
       .catch((error) => {
         console.error(error);
