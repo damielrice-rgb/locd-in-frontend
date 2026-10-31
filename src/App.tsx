@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './pages/ProtectedRoute';
 import Navbar from './pages/Navbar';
 import Appointments from './pages/Appointments';
+// NEW: guest booking page
+import Book from './pages/Book';
 
 
 function App() {
@@ -20,6 +22,9 @@ function App() {
     <main className="pt-28">
     <Routes>
       <Route path="/" element={<Home />} />
+
+      {/* NEW: guest booking. Public, so it's NOT inside ProtectedRoute */}
+      <Route path="/book" element={<Book />} />
 
       <Route path="/login" element={<Login />} />
 
