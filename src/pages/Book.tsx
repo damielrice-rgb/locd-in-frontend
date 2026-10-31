@@ -19,13 +19,33 @@ function showTime(slot: string) {
   return `${hour12}:${String(minute).padStart(2, '0')} ${suffix}`;
 }
 
-// Today's date as "2026-10-15" so the calendar can't pick past days.
-// WHY not toISOString(): that uses UTC, which can be "tomorrow" at night in St. Louis.
+// Morneice works in St. Louis, so every appointment time is St. Louis time,
+// even if the client's phone is set to another time zone.
+const ST_LOUIS = 'America/Chicago';
+
+// Today's date in St. Louis as "2026-10-15" so the calendar can't pick past days.
+// WHY en-CA: Canada writes dates as year-month-day, the format a date input needs.
 function todayString() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+  return new Date().toLocaleDateString('en-CA', { timeZone: ST_LOUIS });
+}
+
+// Turn a picked date + time into the exact moment in St. Louis.
+// "2027-01-05" + "14:00" -> "2027-01-05T20:00:00.000Z"
+// WHY two tries: St. Louis is 5 hours behind UTC in daylight saving time and
+// 6 hours behind the rest of the year. We try both, then ask a St. Louis clock
+// which one really shows the picked time. That handles daylight saving for us.
+function stLouisToISO(date: string, time: string) {
+  const daylightTime = new Date(`${date}T${time}:00-05:00`);
+  const standardTime = new Date(`${date}T${time}:00-06:00`);
+
+  const clock = daylightTime.toLocaleTimeString('en-US', {
+    timeZone: ST_LOUIS,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23', // 24-hour clock, so it matches our "14:00" slots
+  });
+
+  return (clock === time ? daylightTime : standardTime).toISOString();
 }
 
 function Book() {
@@ -74,10 +94,10 @@ function Book() {
     setSending(true);
 
     try {
-      // Put the date + time together, then turn it into a full timestamp.
-      // WHY toISOString(): the browser knows the client is in St. Louis time,
-      // so this sends the EXACT moment. The server (on UTC) won't shift it.
-      const fullDate = new Date(`${date}T${time}`).toISOString();
+      // Put the date + time together as St. Louis time, then send the EXACT moment.
+      // WHY not new Date(date + time): that uses the phone's time zone, so a phone
+      // on New York time would book 2:00 PM as 1:00 PM in St. Louis.
+      const fullDate = stLouisToISO(date, time);
 
       const data = await createBooking(serviceId, fullDate, notes, clientName, clientPhone, smsConsent);
 
@@ -100,6 +120,7 @@ function Book() {
       day: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
+      timeZone: ST_LOUIS, // show St. Louis time, not the phone's time
     });
 
     return (
@@ -107,7 +128,7 @@ function Book() {
         <div className="glass w-full max-w-xl rounded-[36px] p-8 text-center md:p-12" role="status">
           <p className="font-display text-5xl font-black">You're booked! ✷</p>
           <p className="mt-6 font-display text-2xl font-bold">{booked.service.name}</p>
-          <p className="mt-2 text-xl text-blush">{when}</p>
+          <p className="mt-2 text-xl text-blush">{when} (St. Louis time)</p>
           {/* WHY check textSent: never say we texted them if the text failed.
               This screen is their only record when that happens. */}
           <p className="mt-6 leading-relaxed text-blush">
@@ -183,6 +204,7 @@ function Book() {
                 </button>
               ))}
             </div>
+            <p className="mt-2 text-sm text-blush">Times are St. Louis time</p>
           </fieldset>
 
           {/* 4. NAME + PHONE */}
